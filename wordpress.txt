@@ -1,0 +1,49 @@
+# Migrar mi sitio de WordPress manualmente
+01. **Haz una copia** de seguridad del sitio web
+*Con la ayuda de un cliente FTP como FileZilla, todos los archivos WordPress se almacenan localmente
+02. Exportar la base de datos
+## Copia de seguridad de la base de datos
+'mysqldump -u usuario -p wordpress > database_backup.sql'
+*nombre_usuario hace referencia al nombre del usuario de la base de datos.
+*nombre_bbdd hay que sustituirlo por el nombre de la base de datos que quieres exportar.
+*nombre_archivo_dump.sql es el archivo que se generará con toda la información de la base de datos.
+
+## Crea una base de datos en el nuevo servidor.
+* crear una nueva base de datos
+'**mysql -u root -p create database wordpress;**--
+'**create user ‘usuario’@’localhost’ identified by ‘1234’'**--
+**'grant all privileges on wordpress.* to ‘usuario’@’localhost’;'**
+### Ajustar y cargar archivos de WordPress subir o reemplazar la copia de seguridad en el directorio
+1. Conéctate al nuevo sitio de WordPress con una aplicación de FTP, en FileZilla, en el lado de Sitio local, busca la carpeta que descargaste antes. Selecciona la carpeta, luego haz clic derecho
+(Windows)y selecciona Cargar
+3. Verás una advertencia de que el archivo objetivo ya existe. Selecciona Sobrescribir, Usar siempre esta acción y Aplicar a la lista actual únicamente.
+
+### Importar la base de datos 
+mysql -u usuario -p nombre_basededatos < data.sql
+
+*nombre_usuario es el nombre del usuario con acceso a la base de datos.
+*nueva_bbdd es el nombre de la base de datos donde se realizará la importación.
+*nombre_archivo_dump.sql es el nombre del archivo que contiene todas las instrucciones sql que se van a importar.
+
+Ahora es necesario ajustar los datos existentes. Para ello, abre el archivo wp-config.php con cualquier editor de texto. 
+04. Edita el archivo wp-config.php
+'
+``` bash
+
+ * @package WordPress
+ */
+
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' ); *Aqui debes añadir el nombre de la nueva base de datos
+
+/** Database username */
+define( 'DB_USER', 'usuario' );   *Aqui se cambia el nombre del nuevo usuario
+
+/** Database password */
+define( 'DB_PASSWORD', '1234' );  * Aqui cambiamos la contraseña nueva
+
+```
+* A continuación, es necesario ajustar y guardar la información de DB_NAME, DB_USER, DB_PASSWORD y DB_HOST 
+
+### Por ultimo dar todos los permisos a la carpeta donde se encuentra los archivos de wordpress

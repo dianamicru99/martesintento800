@@ -1,0 +1,103 @@
+# Gitea on Ubuntu 22.04
+
+ #### Paso 1. Primero, asegúrese de que todos los paquetes de su sistema estén actualizados ejecutando los siguientes aptcomandos en la terminal.
+ ``` bash
+ sudo apt update
+sudo apt upgrade
+sudo apt install software-properties-common apt-transport-https wget ca-certificates gnupg2 ubuntu-keyring
+```
+####  Paso 2. Instalando MariaDB.
+Gitea necesita un servidor para almacenar los datos o su contenido. Para almacenar datos de Gitea, usaremos MariaDB.
+``` bash
+sudo apt install mariadb-server mariadb-client
+```
+** Confirme la instalación y verifique la versión de compilación instalada de MariaDB:** 
+``` bash
+mariadb --version
+```
+** Ahora inicie sesión en el shell MariaDB: **
+``` bash
+mysql -u root -p
+- Después de una instalación exitosa, habilite MariaDB (para que se inicie automáticamente al iniciar el sistema), inicie y verifique el estado usando los siguientes comandos:
+``` bash
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
+sudo systemctl status mariadb
+```
+-  Ahora inicie sesión en el shell MariaDB:
+``` bash
+mysql -u root -p
+```
+- A continuación, cree una base de datos usando el siguiente comando:
+```bash
+CREATE DATABASE giteadb;
+MariaDB [(none)]> CREATE USER 'giteauser'@'localhost' IDENTIFIED BY 'your_strong_passwd';
+MariaDB [(none)]> GRANT ALL ON giteadb.* TO 'giteauser'@'localhost' IDENTIFIED BY 'your_strong_passwd' WITH GRANT OPTION;
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> EXIT;
+```
+- Git está disponible en el repositorio base de Ubuntu 22.04. Ahora ejecute el siguiente comando a continuación
+``` bash
+sudo apt install git
+```
+- Verificar la version instalada de gitea
+``` bash
+git --version
+```
+- A continuación, creamos un usuario de Git para ejecutar los servicios de Gitea:
+``` bash
+sudo adduser --system --group --disabled-password --shell /bin/bash --home /home/git --gecos 'Git Version Control' git
+```
+####  Paso 4. Instalar Gitea en Ubuntu 22.04.
+Ahora ejecute el siguiente comando a continuación para descargar la última versión de Gitea a su sistema Ubuntu:
+``` bash
+wget -O /tmp/gitea https://dl.gitea.io/gitea/1.16.8/gitea-1.16.8-linux-amd64
+```
+-  Mueva el archivo binario de Gitea y cree el archivo binario ejecutable:/usr/local/bin.
+``` bash
+mv /tmp/gitea /usr/local/bin
+chmod +x /usr/local/bin/gitea
+```
+- A continuación, creamos la estructura del directorio y configuramos los permisos y la propiedad necesarios:
+``` bash
+mkdir -p /var/lib/gitea/{custom,data,indexers,public,log}
+chown git: /var/lib/gitea/{data,indexers,log}
+chmod 750 /var/lib/gitea/{data,indexers,log}
+mkdir /etc/gitea
+chown root:git /etc/gitea
+chmod 770 /etc/gitea
+```
+####  Paso 5. Cree el archivo de servicio Systemd.
+Ahora descargue el archivo al directorio usando el siguiente comando a continuación: /etc/systemd/system/
+``` bash
+wget https://raw.githubusercontent.com/go-gitea/gitea/main/contrib/systemd/gitea.service -P /etc/systemd/system/
+```
+-  Luego, recarga systemd inicia el servicio Gitea con el siguiente comando:
+
+``` bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now gitea
+sudo systemctl status gitea
+```
+####  Paso 6. Configurar el cortafuegos.
+Ubuntu 22.04 tiene ufw un firewall ejecutándose de forma predeterminada. Ahora habilitamos la conexión a través de puertos 3000:
+``` bash
+sudo ufw allow 3000/tcp
+sudo ufw enable
+sudo ufw status
+```
+####  Paso 7. Accediendo a la interfaz web de Gitea.
+
+Una vez que la instalación sea completamente exitosa, ahora abra su navegador web y acceda a la interfaz de usuario web de Gitea usando la URL . Serás llevado al panel de Gitea como se muestra a continuación:
+``` bash
+http://your-ip-address:3000 
+o tambien puedes poner http://localhost:3000 de las 2 formas es valida en la configuración.
+```
+- En la configuración de base de datos al iniciar poner : SQlite3 al poner eso los campos en blanco se rellenan con toda la informacion acerca de la BBDD en la instalacion .
+- Luego vamos donde configuracion de cuenta de administrador y creamos nuestro usuario y contraseña para poder acceder es muy importante establecer credenciales de acceso.
+- get more information: https://idroot.us/install-gitea-ubuntu-22-04/
+
+
+
+
+
